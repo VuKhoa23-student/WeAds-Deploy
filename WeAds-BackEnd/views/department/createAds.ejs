@@ -1,0 +1,36 @@
+<%- include('./partials/header') %>
+  <div class="container-fluid d-flex justify-content-center">
+    <div class="row justify-content-center col-12 col-sm-11 col-md-10 col-lg-8">
+      <form class="license-form" method="post" action="/weads/ad/createAd/<%= adPlacement._id %>">
+        <div class="license-form-header">
+          <a href="/weads/ad/allAds/<%= adPlacement._id %>" class="btn btn-outline-success back-btn">Trở lại</a>
+          <h3 class="license-form-title">Tạo bảng quảng cáo</h3>
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Địa điểm đặt quảng cáo:</h3>
+          <input type="text" class="place-input" value="<%= adPlacement.ward %>, <%= adPlacement.district %>" readonly>
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Tên quảng cáo:</h3>
+          <input type="text" class="license-form-input" id="adName" required name="adName">
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Loại bảng quảng cáo:</h3>
+          <input type="text" class="license-form-input" id="adType" required name="adType">
+        </div>
+        <div class="license-form-row">
+          <div class="size-row">
+            <h3 class="row-label">Kích thước:</h3>
+            <input type="text" class="ads-size" id="width" required name="width">m
+             x 
+            <input type="text" class="ads-size" id="height" required name="height">m
+          </div>
+        </div>
+        <span class="seperate"></span>
+        <span class="d-flex justify-content-center">
+          <button id="license-form-submit" class="btn btn-success">Tạo bảng</button>
+        </span>
+      </form>
+    </div>
+  </div>
+<%- include('./partials/footer') %>

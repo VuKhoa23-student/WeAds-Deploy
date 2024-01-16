@@ -1,0 +1,176 @@
+<%- include('./partials/header') %>
+<div class="d-flex justify-content-center">
+  <div class="card row col-12 col-sm-11 col-md-10 col-lg-6">
+    <div class="card-header position-relative d-flex justify-content-center align-item-center">
+      <a class="detail-back-btn btn btn-outline-success" href="/weads/license-request/view-all"><i class="bi bi-chevron-left"></i>Trở lại</a>
+      <i class="bi bi-card-checklist title-icon"></i>
+      <h3 class="title">Yêu cầu cấp phép</h3>
+    </div>
+    <div class="card-body">
+      <div class="request-info">
+        <h3 class="row-name centered-row">Thông tin công ty</h3>
+        <div class="info-row">
+          <h3 class="row-name">Tên công ty:</h3>
+          <h3 class="row-data"> <%- request.companyName %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">SĐT:</h3>
+          <h3 class="row-data"> <%- request.companyPhone %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">Email:</h3>
+          <h3 class="row-data"> <%- request.companyEmail %></h3>
+        </div>
+        <span class="seperate"></span>
+        <h3 class="row-name centered-row">Thông tin quảng cáo</h3>
+        <div class="info-row">
+          <h3 class="row-name">Tên quảng cáo:</h3>
+          <h3 class="row-data"> <%- request.adName %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">Loại quảng cáo:</h3>
+          <h3 class="row-data"> <%- request.adType %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">Thời hạn:</h3>
+          <h3 class="row-data"><%- startDate %> - <%- endDate %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">Kích thước:</h3>
+          <h3 class="row-data"> <%- request.adScale %></h3>
+        </div>
+        <div class="info-row">
+          <h3 class="row-name">Địa chỉ điểm đặt:</h3>
+          <h3 class="row-data"> <%- request.place.ward %>, <%- request.place.district %></h3>
+        </div>
+      </div>
+      <span class="seperate"></span>
+      <h3 class="row-name centered-row">Hình ảnh chi tiết</h3>
+      <% if (request.adImages.length > 0) { %>
+        <div class="image-container">
+          <% for(var i = 0; i < request.adImages.length; i++) { %>
+            <img class="ads-image" src="<%- request.adImages[i] %>" alt="hình ảnh quảng cáo">
+          <% } %>
+        </div>
+      <% } else { %>
+        <h3 class="row-name centered-row">Không có hình ảnh</h3>
+      <% } %>
+    </div>
+    <div class="card-footer">
+      <div class="d-flex justify-content-center">
+        <% if (role == 'Department') { %>
+          <button type="submit" id="accept-btn" class="btn btn-success mx-2">Chấp thuận <i class="bi bi-check2"></i></button>
+          <button type="submit" id="decline-btn" class="btn btn-danger">Từ chối <i class="bi bi-x"></i></button>
+        <% } else { %>
+          <% if (request.state == '0') { %>
+            <button type="submit" id="delete-btn" class="btn btn-danger">Xoá yêu cầu</button>
+          <% } else { %>
+            <span>&nbsp;</span>
+          <% } %>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</div>
+
+<% if (role == 'Department') { %>
+  <script>
+    function showAcceptModal() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã cập nhật biển quảng cáo',
+                showCancelButton: false,
+                timer: null
+            }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = '/weads/license-request/view-all';
+                }
+            });
+    }
+    function showDeclineModal() {
+            Swal.fire({
+                icon: 'success',
+                title: 'Đã từ chối yêu cầu',
+                showCancelButton: false,
+                timer: null
+            }).then((result) => {
+                if (result.isConfirmed) {
+                  window.location.href = '/weads/license-request/view-all';
+                }
+            });
+    }
+    function showErrorModal() {
+        Swal.fire({
+            icon: 'error',
+            title: 'Có lỗi xảy ra, vui lòng thử lại',
+            showCancelButton: false,
+            timer: null
+        });
+    }
+    $("#accept-btn").click(async function() {
+      const response = await fetch(window.location.pathname + '/accept', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then (function(result) {
+          return result.json();
+        })
+        if (response.success)
+          showAcceptModal();
+        else {
+          showErrorModal();
+        }
+    });
+    $("#decline-btn").click(async function() {
+      const response = await fetch(window.location.pathname + '/decline', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then (function(result) {
+          return result.json();
+        })
+        if (response.success)
+          showDeclineModal();
+        else {
+          showErrorModal();
+        }
+    });
+  </script>
+<% } else { %>
+  <script>
+    function showDeleteModal() {
+      Swal.fire({
+          icon: 'success',
+          title: 'Đã xoá yêu cầu',
+          showCancelButton: false,
+          timer: null
+      }).then((result) => {
+          if (result.isConfirmed) {
+            window.location.href = '/weads/license-request/view-all';
+          }
+      });
+    }
+    $("#delete-btn").click(async function() {
+      const response = await fetch(window.location.pathname + '/delete', {
+          method: 'POST',
+          headers: {
+            "Content-Type": "application/json",
+          }
+        })
+        .then (function(result) {
+          return result.json();
+        })
+        if (response.success)
+          showDeleteModal();
+        else {
+          showErrorModal();
+        }
+    });
+  </script>
+<% } %>
+
+<%- include('./partials/footer') %>

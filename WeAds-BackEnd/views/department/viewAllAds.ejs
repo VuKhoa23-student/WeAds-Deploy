@@ -1,0 +1,158 @@
+<%- include('./partials/header') %>
+
+<div class="container mt-5">
+    <h1>Danh sách các bảng quảng cáo</h1>
+
+    <% if (ads.length > 0) { %>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>STT</th>
+                    <th>Tên quảng cáo</th>
+                    <th>Loại bảng quảng cáo</th>
+                    <th>Kích thước</th>
+                    <th>Thông tin công ty đặt quảng cáo</th>
+                    <th>Thời hạn quảng cáo</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <% for (let i = 0; i < ads.length; i++) { %>
+                    <tr>
+                        <td><%= i + 1 %></td>
+                        <% if (ads[i].adName != undefined) { %>
+                            <td><%= ads[i].adName %> </td>
+                            <td><%= ads[i].adType %> </td>
+                            <td><%= ads[i].adScale %> </td>
+                            <td>Tên: <%= ads[i].companyName %> <br>
+                                SĐT: <%= ads[i].companyPhone %> <br>
+                                Email: <%= ads[i].companyEmail %>
+                            </td>
+                            <td>Từ: <%= new Date(ads[i].startDate).toLocaleDateString('vi-VN') %> <br>
+                                Đến: <%= new Date(ads[i].endDate).toLocaleDateString('vi-VN') %>
+                            </td>
+                            <td>
+                                <% if (role == 'Department') { %>
+                                    <span class="w-100 d-flex justify-content-center">
+                                        <a class="mx-1" href="/weads/ad/editAdForm/<%= ads[i]._id %>">
+                                            <button type="button" class="btn btn-primary" onclick="">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button>
+                                        </a>
+            
+                                        <button class="btn btn-danger" onclick="showDeleteConfirmation('<%= ads[i]._id %>')">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </span>
+                                <% } else { %>
+                                    <% if (ads[i].licensed) { %>
+                                        <span class="d-flex justify-content-center">
+                                            <a class="btn btn-success" href="/weads/ad/editAdForm/<%= ads[i]._id %>">Yêu cầu chỉnh sửa</a>
+                                        </span>
+                                    <% } %>
+                                <% } %>
+                            </td>
+                        <% } else { %>
+                            <td style="text-align: center;" colspan="5">Biển quảng cáo trống</td>
+                            <td>
+                                <% if (role == 'Department') { %>
+                                        <span class="d-flex justify-content-center">
+                                            <button class="btn btn-danger" onclick="showDeleteConfirmation('<%= ads[i]._id %>')">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </span>
+                                <% } else { %>
+                                    <span class="d-flex justify-content-center">
+                                        <a href="/weads/license-request/create/<%- ads[i]._id %>" class="btn btn-success">Yêu cầu cấp phép</a>
+                                    </span>
+                                <% } %>
+                            </td>
+                        <% } %>
+                    </tr>
+                <% } %>
+                
+            </tbody>
+        </table>
+    <% } else { %>
+        <p>Không có bảng quảng cáo nào trong danh sách.</p>
+    <% } %>
+
+    <a href="/weads/place/allAdPlacement">
+        <button class="btn btn-secondary">
+            <i class="bi bi-arrow-left-circle-fill"></i>
+            Trở về
+        </button>
+    </a>
+
+    <!-- Button add Ads -->
+    <% if (role == 'Department') { %>
+        <a class="btn btn-primary" href="/weads/ad/createAd/<%= adPlacement._id %>">
+            <i class="bi bi-plus-circle-fill"></i>
+            Thêm Bảng quảng cáo
+        </a>
+    <% } %>
+
+
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <% if (announce === 'delete') { %>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Xóa thành công',
+                showCancelButton: false,
+                timer: 1500
+            });
+        </script>
+    <% } else if (announce === 'create') { %>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'Thêm điểm đặt mới thành công',
+                showCancelButton: false,
+                timer: 1500
+            });
+        </script>
+    <% } else if (announce === 'edit') { %>
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: 'cập nhật điểm đặt thành công',
+                showCancelButton: false,
+                timer: 1500
+            });
+        </script>
+    <% } else if (announce === 'exist') { %>
+        <script>
+            Swal.fire({
+                icon: 'error',
+                title: 'Điểm đặt đã tồn tại',
+                showCancelButton: false,
+                timer: 1500
+            });
+        </script>
+    <% } %>
+    
+    
+    <script>
+        function showDeleteConfirmation(adId) {
+            Swal.fire({
+                title: 'Xác nhận xóa',
+                text: 'Bạn có chắc muốn xóa điểm đặt này?',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Xóa',
+                cancelButtonText: 'Hủy'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    window.location.href = '/weads/ad/deleteAd/' + adId;
+                }
+            });
+        }
+    </script>
+
+</div>
+
+<%- include('./partials/footer') %>

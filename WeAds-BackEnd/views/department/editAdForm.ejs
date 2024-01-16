@@ -1,0 +1,220 @@
+<%- include('./partials/header') %>
+  <div class="container-fluid d-flex justify-content-center">
+    <div class="row justify-content-center col-12 col-sm-11 col-md-10 col-lg-8">
+      <form id="edit-ad-form" method="post">
+        <div class="license-form-header">
+          <a href="/weads/ad/allAds/<%= adPlacement._id %>" class="btn btn-outline-success back-btn">Trở lại</a>
+          <h3 class="license-form-title">Chỉnh sửa bảng quảng cáo</h3>
+        </div>
+        <h3 class="row-name centered-row">Thông tin quảng cáo</h3>
+        <div class="license-form-row">
+          <h3 class="row-label">Địa điểm đặt quảng cáo:</h3>
+          <input type="text" class="place-input" value="<%= adPlacement.ward %>, <%= adPlacement.district %>" readonly>
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Tên quảng cáo:</h3>
+          <input type="text" class="license-form-input" id="adName" value="<%= ad.adName %>" required name="adName">
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Loại bảng quảng cáo:</h3>
+          <input type="text" class="license-form-input" id="adType" value="<%= ad.adType %>" required name="adType">
+        </div>
+        <div class="license-form-row">
+          <div class="size-row">
+            <h3 class="row-label">Kích thước:</h3>
+            <% const sizes = ad.adScale.split('x').map(s => s.trim()) %>
+            <input type="text" class="ads-size" id="width" value="<%= sizes[0].replace('m', '') %>" required name="width">m
+             x 
+            <input type="text" class="ads-size" id="height" value="<%= sizes[1].replace('m', '') %>" required name="height">m
+          </div>
+        </div>
+        <span class="seperate"></span>
+        <div class="license-form-row license-image-row" id="ads-images">
+          <h3 class="row-name centered-row">Hình ảnh chi tiết</h3>
+          <% if (ad.adImages.length > 0) { %>
+            <div class="image-container">
+              <% for(var i = 0; i < ad.adImages.length; i++) { %>
+                <div class="ad-image-wrapper">
+                  <img class="ads-image" src="<%- ad.adImages[i] %>" alt="hình ảnh quảng cáo">
+                  <div class="delete-img-overlay">
+                    <button onclick="removeElement(this)" class="delete-img-button btn btn-danger">Xóa</button>
+                  </div>
+                </div>
+              <% } %>
+            </div>
+          <% } else { %>
+            <h3 style="font-weight: normal;" class="row-name centered-row">Không có hình ảnh</h3>
+          <% } %>
+          <div class="mt-2 mb-3 form-group row">
+            <label for="image" class="form-label col-3">Thêm ảnh</label>
+            <div class="col-9">
+              <input type="file" multiple data-browse-on-zone-click="true" accept="image/*" id="newAdImages" name="newAdImages" />
+            </div>
+          </div>
+        </div>
+        <span class="seperate"></span>
+        <h3 class="row-name centered-row">Thông tin công ty</h3>
+        <div class="license-form-row">
+          <h3 class="row-label">Tên công ty đặt quảng cáo:</h3>
+          <input type="text" class="license-form-input" id="companyName"value="<%= ad.companyName %>" required name="companyName">
+        </div>
+        <div class="license-form-row">
+          <h3 class="row-label">Thông tin liên lạc công ty:</h3>
+          <div class="row d-flex align-items-center justify-content-between">
+            <div class="company-info-row col-12 col-md-4">
+                <h4 class="company-info-label">SĐT:</h4>         
+                <input type="text" class="company-info-input" id="companyPhone" value="<%= ad.companyPhone %>" required name="companyPhone">
+            </div>
+            <div class="company-info-row col-12 col-md-7">
+                <h4 class="company-info-label">Email:</h4>       
+                <input type="email" class="company-info-input" id="companyEmail" value="<%= ad.companyEmail %>" required name="companyEmail">
+            </div>
+          </div>
+        </div>
+
+        <div class="license-form-row">
+          <h3 class="row-label">Thời hạn quảng cáo:</h3>
+          <div class="row d-flex align-items-center justify-content-around">
+            <div class="company-info-row col-8 col-md-4">
+                <h4 class="company-info-label">Bắt đầu:</h4>         
+                <input type="date" class="company-info-input" id="startDate" value="<%= ad.startDate.toISOString().split('T')[0] %>" required name="startDate">
+            </div>
+            <div class="company-info-row col-8 col-md-4">
+                <h4 class="company-info-label">Kết thúc:</h4>       
+                <input type="date" class="company-info-input" id="endDate" value="<%= ad.endDate.toISOString().split('T')[0] %>" required name="endDate">
+            </div>
+          </div>
+        </div>
+        <span class="seperate"></span>
+        <% if (role != 'Department') { %>
+          <h3 class="row-name centered-row">Lý do chỉnh sửa</h3>
+          <textarea type="text" id="reason-input" required></textarea>
+          <span class="seperate"></span>
+        <% } %>
+        <span class="d-flex justify-content-center">
+          <% if (role == 'Department') { %>
+            <button id="edit-ad-submit" class="btn btn-success">Cập nhật</button>
+          <% } else { %>
+            <button id="edit-ad-submit" class="btn btn-success">Tạo yêu cầu</button>
+          <% } %>
+        </span>
+      </form>
+    </div>
+  </div>
+
+<% if (role == 'Department') { %>
+  <script>
+      function showSuccessModal() {
+          Swal.fire({
+              icon: 'success',
+              title: 'Cập nhật điểm đặt thành công',
+              showCancelButton: false,
+              timer: null
+          }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = '/weads/ad/allAds/' + '<%- placeId %>';
+              }
+          });
+      }
+  </script>
+<% } else { %>
+  <script>
+      function showSuccessModal() {
+          Swal.fire({
+              icon: 'success',
+              title: ' Tạo yêu cầu thành công',
+              showCancelButton: false,
+              timer: null
+          }).then((result) => {
+              if (result.isConfirmed) {
+                window.location.href = '/weads/ad/allAds/' + '<%- placeId %>';
+              }
+          });
+      }
+  </script>
+<% } %>
+
+  <script>
+    $("#newAdImages").fileinput({ 'showUpload': true, 'previewFileType': 'image', 'allowedPreviewTypes': ["image"] });
+
+    function removeElement(button) {
+      var parentElement = button.parentNode;
+      parentElement =parentElement.parentNode;
+      var container = parentElement.parentNode;
+      parentElement.parentNode.removeChild(parentElement);
+      console.log(container.children.length);
+      var noImg = document.createElement('p');
+
+      noImg.textContent = 'Không có hình ảnh';
+      noImg.style='font-weight: normal; text-align: center';
+      if (container.children.length == 0) {
+        container.appendChild(noImg);
+      }
+    }
+
+    function showErrorModal() {
+      Swal.fire({
+        icon: 'error',
+        title: 'Có lỗi xảy ra, vui lòng thử lại',
+        showCancelButton: false,
+        timer: null
+      });
+    }
+
+  $("#edit-ad-form").on("submit", async function (event) {
+    event.preventDefault();
+    $("#edit-ad-submit").prop("disabled", true);
+    const adName = $("#adName").val();
+    const adType = $("#adType").val();
+    const width = $("#width").val();
+    const height = $("#height").val();
+    const companyName = $("#companyName").val();
+    const companyPhone = $("#companyPhone").val();
+    const companyEmail = $("#companyEmail").val();
+    const startDate = $("#startDate").val();
+    const endDate = $("#endDate").val();
+    const reason = $("#reason-input").val();
+
+    const formData = new FormData();
+    formData.append('adName', adName);
+    formData.append('adType', adType);
+    formData.append('width', width);
+    formData.append('height', height);
+    formData.append('companyName', companyName);
+    formData.append('companyPhone', companyPhone);
+    formData.append('companyEmail', companyEmail);
+    formData.append('startDate', startDate);
+    formData.append('endDate', endDate);
+    formData.append('reason', reason);
+
+    let images = $(".ads-image");
+    // const imageArray = [];
+
+    images.each(function() {
+      formData.append('adImages', $(this).attr('src'));
+    }); 
+    
+    // handle add image
+    var input = document.getElementById('newAdImages')
+
+    for (const file of input.files) {
+      formData.append('theAdImages', file, file.name)
+    }
+    
+    const response = await fetch(window.location.pathname, {
+      method: 'POST',
+      body: formData
+    })
+      .then(function (result) {
+        return result.json();
+      });
+      
+    if (response.success)
+      showSuccessModal();
+    else {
+      $("#edit-ad-submit").prop("disabled", true);
+      showErrorModal();
+    }
+  });
+  </script>
+<%- include('./partials/footer') %>
